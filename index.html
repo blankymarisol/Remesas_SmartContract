@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Smart Contract</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulación de Smart Contract</h1>
+
+        <!-- Formulario para agregar transacciones -->
+        <div class="form-container">
+            <h2>Agregar Transacción</h2>
+            <input type="text" id="sender" placeholder="Remitente">
+            <input type="text" id="receiver" placeholder="Beneficiario">
+            <input type="number" id="amount" placeholder="Monto">
+            <button onclick="addTransaction()">Agregar</button>
+        </div>
+
+        <!-- Historial de transacciones -->
+        <div class="transactions-container">
+            <h2>Historial de Transacciones</h2>
+            <div id="transactions-list"></div>
+        </div>
+
+        <!-- Búsqueda de transacciones por usuario -->
+        <div class="search-container">
+            <h2>Buscar Transacciones</h2>
+            <input type="text" id="search-user" placeholder="Ingrese el nombre">
+            <button onclick="searchTransactions()">Buscar</button>
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
