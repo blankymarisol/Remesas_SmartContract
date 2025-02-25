@@ -17,7 +17,6 @@ class TransactionLinkedList {
 
     // Método para agregar una nueva transacción a la lista
     addTransaction(sender, receiver, amount) {
-        // Validar que los datos sean correctos antes de agregar la transacción
         if (!sender || !receiver || isNaN(amount) || amount <= 0) {
             alert("Por favor, ingrese datos válidos.");
             return;
@@ -30,17 +29,46 @@ class TransactionLinkedList {
         if (!this.head) {
             this.head = newTransaction;
         } else {
-            // Recorrer la lista hasta el último nodo
             let current = this.head;
             while (current.next) {
                 current = current.next;
             }
-            // Enlazar la nueva transacción al final de la lista
             current.next = newTransaction;
         }
 
-        // Actualizar la interfaz para mostrar las transacciones
-        this.displayTransactions();
+        // Guardar las transacciones en el almacenamiento local
+        this.saveTransactions();
+    }
+
+    // Método para guardar las transacciones en el almacenamiento local
+    saveTransactions() {
+        let transactionsArray = [];
+        let current = this.head;
+
+        // Recorrer la lista y guardar cada transacción en un array
+        while (current) {
+            transactionsArray.push({
+                sender: current.sender,
+                receiver: current.receiver,
+                amount: current.amount,
+                timestamp: current.timestamp
+            });
+            current = current.next;
+        }
+
+        // Guardar el array en localStorage
+        localStorage.setItem("transactions", JSON.stringify(transactionsArray));
+    }
+
+    // Método para cargar transacciones desde el almacenamiento local al iniciar
+    loadTransactions() {
+        const transactionsData = localStorage.getItem("transactions");
+        if (transactionsData) {
+            const transactionsArray = JSON.parse(transactionsData);
+            transactionsArray.forEach(tx => {
+                this.addTransaction(tx.sender, tx.receiver, tx.amount);
+            });
+        }
     }
 
     // Método para mostrar todas las transacciones en la página
@@ -49,7 +77,6 @@ class TransactionLinkedList {
         const transactionList = document.getElementById("transactions-list");
         transactionList.innerHTML = "";  // Limpiar la lista antes de actualizar
 
-        // Recorrer la lista y mostrar cada transacción
         while (current) {
             const transactionDiv = document.createElement("div");
             transactionDiv.classList.add("transaction-item");
@@ -69,19 +96,19 @@ class TransactionLinkedList {
         }
     }
 
-    // Método para buscar transacciones de un usuario específico
+    // Método para buscar transacciones por usuario
     getTransactionsForUser(user) {
         let current = this.head;
         const searchResults = document.getElementById("search-results");
         searchResults.innerHTML = "";  // Limpiar los resultados antes de actualizar
+        let found = false;  // Variable para verificar si se encontró alguna coincidencia
 
-        // Recorrer la lista y encontrar las transacciones que involucren al usuario
         while (current) {
             if (current.sender === user || current.receiver === user) {
+                found = true;
                 const transactionDiv = document.createElement("div");
                 transactionDiv.classList.add("transaction-item");
 
-                // Crear el contenido HTML de la transacción filtrada
                 transactionDiv.innerHTML = `
                     <p><strong>Remitente:</strong> ${current.sender}</p>
                     <p><strong>Beneficiario:</strong> ${current.receiver}</p>
@@ -89,10 +116,14 @@ class TransactionLinkedList {
                     <p><strong>Fecha:</strong> ${current.timestamp}</p>
                 `;
 
-                // Agregar el resultado a la lista en la interfaz
                 searchResults.appendChild(transactionDiv);
             }
             current = current.next;  // Avanzar al siguiente nodo
+        }
+
+        // Si no se encontraron transacciones, mostrar una alerta
+        if (!found) {
+            alert("No se encontraron transacciones con ese nombre.");
         }
     }
 
@@ -102,14 +133,15 @@ class TransactionLinkedList {
 
         // Si la primera transacción es la que se debe eliminar
         if (this.head.timestamp === timestamp) {
-            this.head = this.head.next;  // Mover la cabeza de la lista al siguiente nodo
-            this.displayTransactions();  // Actualizar la interfaz
+            this.head = this.head.next;
+            this.saveTransactions();
+            this.displayTransactions();
             return;
         }
 
         let current = this.head;
         while (current.next && current.next.timestamp !== timestamp) {
-            current = current.next;  // Avanzar en la lista buscando la transacción a eliminar
+            current = current.next;
         }
 
         // Si se encuentra la transacción, eliminarla
@@ -117,28 +149,34 @@ class TransactionLinkedList {
             current.next = current.next.next;
         }
 
-        // Actualizar la interfaz para reflejar el cambio
+        this.saveTransactions();
         this.displayTransactions();
     }
 }
 
-// Crear una instancia de la lista enlazada
+// Crear una instancia de la lista enlazada y cargar transacciones almacenadas
 const transactions = new TransactionLinkedList();
+transactions.loadTransactions();
 
 // Función para agregar una transacción desde la interfaz
 function addTransaction() {
-    // Obtener los valores ingresados en el formulario
     const sender = document.getElementById("sender").value;
     const receiver = document.getElementById("receiver").value;
     const amount = parseFloat(document.getElementById("amount").value);
 
-    // Llamar al método para agregar la transacción
     transactions.addTransaction(sender, receiver, amount);
 
     // Limpiar los campos del formulario después de agregar la transacción
     document.getElementById("sender").value = "";
     document.getElementById("receiver").value = "";
     document.getElementById("amount").value = "";
+}
+
+// Función para mostrar las transacciones cuando se presiona el botón "Historial de Transacciones"
+function showTransactions() {
+    const transactionContainer = document.getElementById("transactions-container");
+    transactionContainer.style.display = "block";  // Mostrar la sección de transacciones
+    transactions.displayTransactions();  // Mostrar las transacciones guardadas
 }
 
 // Función para buscar transacciones por usuario desde la interfaz
