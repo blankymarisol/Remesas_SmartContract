@@ -1,8 +1,9 @@
 // Clase para representar un nodo de la lista enlazada (cada transacción)
 class TransactionNode {
-    constructor(sender, receiver, amount) {
+    constructor(sender, receiver, dpi, amount) {
         this.sender = sender;  // Nombre del remitente
         this.receiver = receiver;  // Nombre del beneficiario
+        this.dpi = dpi;  // Número de DPI del beneficiario
         this.amount = amount;  // Monto transferido
         this.timestamp = new Date().toISOString();  // Fecha y hora de la transacción en formato ISO
         this.next = null;  // Puntero al siguiente nodo en la lista
@@ -16,19 +17,21 @@ class TransactionLinkedList {
     }
 
     // Método para agregar una nueva transacción a la lista
-    addTransaction(sender, receiver, amount) {
-        if (!sender || !receiver || isNaN(amount) || amount <= 0) {
+    addTransaction(sender, receiver, dpi, amount) {
+        // Validar que los campos no estén vacíos y que el monto sea válido
+        if (!sender || !receiver || !dpi || isNaN(amount) || amount <= 0) {
             alert("Por favor, ingrese datos válidos.");
             return;
         }
 
         // Crear una nueva transacción
-        const newTransaction = new TransactionNode(sender, receiver, amount);
+        const newTransaction = new TransactionNode(sender, receiver, dpi, amount);
 
         // Si la lista está vacía, la nueva transacción será la primera
         if (!this.head) {
             this.head = newTransaction;
         } else {
+            // Recorrer la lista hasta el último nodo
             let current = this.head;
             while (current.next) {
                 current = current.next;
@@ -40,7 +43,7 @@ class TransactionLinkedList {
         this.saveTransactions();
     }
 
-    // Método para guardar las transacciones en el almacenamiento local
+    // Método para guardar las transacciones en el almacenamiento local (localStorage)
     saveTransactions() {
         let transactionsArray = [];
         let current = this.head;
@@ -50,33 +53,35 @@ class TransactionLinkedList {
             transactionsArray.push({
                 sender: current.sender,
                 receiver: current.receiver,
+                dpi: current.dpi,
                 amount: current.amount,
                 timestamp: current.timestamp
             });
             current = current.next;
         }
 
-        // Guardar el array en localStorage
+        // Guardar el array en localStorage en formato JSON
         localStorage.setItem("transactions", JSON.stringify(transactionsArray));
     }
 
-    // Método para cargar transacciones desde el almacenamiento local al iniciar
+    // Método para cargar transacciones almacenadas desde localStorage al iniciar la aplicación
     loadTransactions() {
         const transactionsData = localStorage.getItem("transactions");
         if (transactionsData) {
             const transactionsArray = JSON.parse(transactionsData);
             transactionsArray.forEach(tx => {
-                this.addTransaction(tx.sender, tx.receiver, tx.amount);
+                this.addTransaction(tx.sender, tx.receiver, tx.dpi, tx.amount);
             });
         }
     }
 
-    // Método para mostrar todas las transacciones en la página
+    // Método para mostrar todas las transacciones cuando se haga clic en "Historial de Transacciones"
     displayTransactions() {
         let current = this.head;
         const transactionList = document.getElementById("transactions-list");
         transactionList.innerHTML = "";  // Limpiar la lista antes de actualizar
 
+        // Recorrer la lista y mostrar cada transacción en pantalla
         while (current) {
             const transactionDiv = document.createElement("div");
             transactionDiv.classList.add("transaction-item");
@@ -85,6 +90,7 @@ class TransactionLinkedList {
             transactionDiv.innerHTML = `
                 <p><strong>Remitente:</strong> ${current.sender}</p>
                 <p><strong>Beneficiario:</strong> ${current.receiver}</p>
+                <p><strong>DPI:</strong> ${current.dpi}</p>
                 <p><strong>Monto:</strong> $${current.amount}</p>
                 <p><strong>Fecha:</strong> ${current.timestamp}</p>
                 <button onclick="removeTransaction('${current.timestamp}')">Eliminar</button>
@@ -96,15 +102,21 @@ class TransactionLinkedList {
         }
     }
 
-    // Método para buscar transacciones por usuario
-    getTransactionsForUser(user) {
+    // Método para buscar transacciones por nombre o DPI del beneficiario
+    getTransactionsForUser(query) {
+        if (!query.trim()) {
+            alert("Por favor, ingrese un nombre o número de DPI para buscar.");
+            return;
+        }
+
         let current = this.head;
         const searchResults = document.getElementById("search-results");
         searchResults.innerHTML = "";  // Limpiar los resultados antes de actualizar
         let found = false;  // Variable para verificar si se encontró alguna coincidencia
 
+        // Recorrer la lista y buscar transacciones por nombre o DPI del beneficiario
         while (current) {
-            if (current.sender === user || current.receiver === user) {
+            if (current.receiver === query || current.dpi === query) {
                 found = true;
                 const transactionDiv = document.createElement("div");
                 transactionDiv.classList.add("transaction-item");
@@ -112,18 +124,19 @@ class TransactionLinkedList {
                 transactionDiv.innerHTML = `
                     <p><strong>Remitente:</strong> ${current.sender}</p>
                     <p><strong>Beneficiario:</strong> ${current.receiver}</p>
+                    <p><strong>DPI:</strong> ${current.dpi}</p>
                     <p><strong>Monto:</strong> $${current.amount}</p>
                     <p><strong>Fecha:</strong> ${current.timestamp}</p>
                 `;
 
                 searchResults.appendChild(transactionDiv);
             }
-            current = current.next;  // Avanzar al siguiente nodo
+            current = current.next;
         }
 
-        // Si no se encontraron transacciones, mostrar una alerta
+        // Si no se encontró ninguna transacción, mostrar una alerta
         if (!found) {
-            alert("No se encontraron transacciones con ese nombre.");
+            alert("No se encontraron transacciones con ese nombre o DPI.");
         }
     }
 
@@ -162,30 +175,32 @@ transactions.loadTransactions();
 function addTransaction() {
     const sender = document.getElementById("sender").value;
     const receiver = document.getElementById("receiver").value;
+    const dpi = document.getElementById("dpi").value;
     const amount = parseFloat(document.getElementById("amount").value);
 
-    transactions.addTransaction(sender, receiver, amount);
+    // Llamar al método para agregar la transacción
+    transactions.addTransaction(sender, receiver, dpi, amount);
 
     // Limpiar los campos del formulario después de agregar la transacción
     document.getElementById("sender").value = "";
     document.getElementById("receiver").value = "";
+    document.getElementById("dpi").value = "";
     document.getElementById("amount").value = "";
 }
 
-// Función para mostrar las transacciones cuando se presiona el botón "Historial de Transacciones"
+// Función para mostrar las transacciones cuando se presiona "Historial de Transacciones"
 function showTransactions() {
-    const transactionContainer = document.getElementById("transactions-container");
-    transactionContainer.style.display = "block";  // Mostrar la sección de transacciones
-    transactions.displayTransactions();  // Mostrar las transacciones guardadas
+    document.getElementById("transactions-container").style.display = "block";
+    transactions.displayTransactions();
 }
 
-// Función para buscar transacciones por usuario desde la interfaz
+// Función para buscar transacciones por nombre o DPI
 function searchTransactions() {
-    const user = document.getElementById("search-user").value;  // Obtener el usuario ingresado
-    transactions.getTransactionsForUser(user);  // Llamar al método de búsqueda
+    const query = document.getElementById("search-user").value;
+    transactions.getTransactionsForUser(query);
 }
 
-// Función para eliminar una transacción desde la interfaz
+// Función para eliminar una transacción
 function removeTransaction(timestamp) {
-    transactions.removeTransaction(timestamp);  // Llamar al método de eliminación
+    transactions.removeTransaction(timestamp);
 }

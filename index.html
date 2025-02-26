@@ -15,6 +15,7 @@
             <h2>Agregar Transacción</h2>
             <input type="text" id="sender" placeholder="Remitente">
             <input type="text" id="receiver" placeholder="Beneficiario">
+            <input type="text" id="dpi" placeholder="DPI del Beneficiario">
             <input type="number" id="amount" placeholder="Monto">
             <button onclick="addTransaction()">Agregar</button>
         </div>
@@ -22,16 +23,16 @@
         <!-- Botón para ver historial de transacciones -->
         <button onclick="showTransactions()">Historial de Transacciones</button>
 
-        <!-- Historial de transacciones (se mostrará cuando se haga clic en el botón) -->
+        <!-- Historial de transacciones -->
         <div class="transactions-container" id="transactions-container" style="display: none;">
             <h2>Historial de Transacciones</h2>
             <div id="transactions-list"></div>
         </div>
 
-        <!-- Búsqueda de transacciones por usuario -->
+        <!-- Búsqueda de transacciones por usuario o DPI -->
         <div class="search-container">
             <h2>Buscar Transacciones</h2>
-            <input type="text" id="search-user" placeholder="Ingrese el nombre">
+            <input type="text" id="search-user" placeholder="Ingrese el nombre o DPI">
             <button onclick="searchTransactions()">Buscar</button>
             <div id="search-results"></div>
         </div>
