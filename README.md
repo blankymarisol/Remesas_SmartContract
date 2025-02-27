@@ -15,6 +15,7 @@ Este es un sistema diseñado para ayudar a los agentes bancarios a gestionar y m
 - **Búsqueda rápida** mediante:
   - Nombre del remitente o beneficiario 🔍
   - DPI del beneficiario 🆔
+  - Descarga de historial por medio de documendo PDF
 - **Consulta de historial** con opción de eliminación de remesas. 🗑️
 - **Validaciones estrictas** para garantizar la integridad de los datos:
   - No permite guardar remesas si faltan datos obligatorios.
