@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulación de Smart Contract</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -27,6 +28,8 @@
         <div class="transactions-container" id="transactions-container" style="display: none;">
             <h2>Historial de Transacciones</h2>
             <div id="transactions-list"></div>
+            <!-- Botón para descargar historial en PDF -->
+            <button id="descargarPDF">Descargar Historial en PDF</button>
         </div>
 
         <!-- Búsqueda de transacciones por usuario o DPI -->

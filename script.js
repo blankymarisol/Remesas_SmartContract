@@ -1,3 +1,25 @@
+// Esperar a que el DOM esté completamente cargado antes de ejecutar código
+document.addEventListener("DOMContentLoaded", function() {
+    const descargarPDF = document.getElementById("descargarPDF");
+
+    // Evento para generar y descargar el historial de transacciones en formato PDF
+    descargarPDF.addEventListener("click", function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let contenido = "Historial de Transacciones\n\n";
+
+        // Obtener todas las transacciones listadas en la interfaz
+        const transacciones = document.querySelectorAll(".transaction-item");
+        transacciones.forEach((transaccion, index) => {
+            contenido += `${index + 1}. ${transaccion.innerText}\n\n`;
+        });
+
+        // Agregar el contenido al PDF y descargarlo
+        doc.text(contenido, 10, 10);
+        doc.save("historial.pdf");
+    });
+});
+
 // Clase para representar un nodo de la lista enlazada (cada transacción)
 class TransactionNode {
     constructor(sender, receiver, dpi, amount) {
@@ -204,3 +226,4 @@ function searchTransactions() {
 function removeTransaction(timestamp) {
     transactions.removeTransaction(timestamp);
 }
+
