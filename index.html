@@ -28,7 +28,7 @@
         <div class="transactions-container" id="transactions-container" style="display: none;">
             <h2>Historial de Transacciones</h2>
             <div id="transactions-list"></div>
-            <!-- Botón para descargar historial en PDF -->
+            <!-- Botón para descargar historial completo en PDF -->
             <button id="descargarPDF">Descargar Historial en PDF</button>
         </div>
 
@@ -38,6 +38,8 @@
             <input type="text" id="search-user" placeholder="Ingrese el nombre o DPI">
             <button onclick="searchTransactions()">Buscar</button>
             <div id="search-results"></div>
+            <!-- Botón para descargar resultados de la búsqueda en PDF (se mostrará cuando haya resultados) -->
+            <button id="descargarBusquedaPDF" style="display: none;" onclick="descargarBusqueda()">Descargar Resultados en PDF</button>
         </div>
     </div>
 

@@ -1,24 +1,45 @@
 // Esperar a que el DOM esté completamente cargado antes de ejecutar código
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    const { jsPDF } = window.jspdf;
+
     const descargarPDF = document.getElementById("descargarPDF");
+    const descargarBusquedaPDF = document.getElementById("descargarBusquedaPDF");
 
     // Evento para generar y descargar el historial de transacciones en formato PDF
-    descargarPDF.addEventListener("click", function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let contenido = "Historial de Transacciones\n\n";
+    descargarPDF.addEventListener("click", function () {
+        generarPDF("transactions-list", "Historial_Transacciones.pdf");
+    });
 
-        // Obtener todas las transacciones listadas en la interfaz
-        const transacciones = document.querySelectorAll(".transaction-item");
-        transacciones.forEach((transaccion, index) => {
-            contenido += `${index + 1}. ${transaccion.innerText}\n\n`;
-        });
-
-        // Agregar el contenido al PDF y descargarlo
-        doc.text(contenido, 10, 10);
-        doc.save("historial.pdf");
+    // Evento para generar y descargar los resultados de búsqueda en formato PDF
+    descargarBusquedaPDF.addEventListener("click", function () {
+        generarPDF("search-results", "Resultados_Busqueda.pdf");
     });
 });
+
+// Función para generar un archivo PDF a partir de una lista de transacciones
+function generarPDF(elementId, fileName) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let contenido = "";
+
+    // Obtener las transacciones desde la interfaz
+    const transacciones = document.querySelectorAll(`#${elementId} .transaction-item`);
+
+    // Verificar si hay contenido para exportar
+    if (transacciones.length === 0) {
+        alert("No hay transacciones para descargar.");
+        return;
+    }
+
+    // Recorrer cada transacción y agregarla al contenido del PDF
+    transacciones.forEach((transaccion, index) => {
+        contenido += `${index + 1}. ${transaccion.innerText}\n\n`;
+    });
+
+    // Agregar contenido al documento y descargar el archivo PDF
+    doc.text(contenido, 10, 10);
+    doc.save(fileName);
+}
 
 // Clase para representar un nodo de la lista enlazada (cada transacción)
 class TransactionNode {
@@ -155,6 +176,13 @@ class TransactionLinkedList {
             }
             current = current.next;
         }
+
+        // Mostrar u ocultar el botón de descarga según haya resultados
+    descargarBusquedaPDF.style.display = found ? "block" : "none";
+
+    if (!found) {
+        alert("No se encontraron transacciones con ese nombre o DPI.");
+    }
 
         // Si no se encontró ninguna transacción, mostrar una alerta
         if (!found) {
